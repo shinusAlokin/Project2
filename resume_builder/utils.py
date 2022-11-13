@@ -1,6 +1,7 @@
 from database import SessionLocal
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
+from schemas import *
 # from main import create_helper, get_helper
 
 db = SessionLocal()

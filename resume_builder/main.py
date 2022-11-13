@@ -11,6 +11,8 @@ from projects import *
 from work_exp import *
 from social_media import *
 from resume import *
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
 
 Base.metadata.create_all(bind=engine)
@@ -20,7 +22,7 @@ db = SessionLocal()
 
 routes = [
         #basic details
-        Route('/get_basic', endpoint=get_basic_details, methods=['GET']),
+        Route('/get_basic/', endpoint=get_basic_details, methods=['GET']),
         Route('/create_basic', endpoint=create_basic_details, methods=['POST']),
         Route('/get_basic/{id:int}', endpoint=get_basic_detail, methods=['GET']),
         Route('/edit/{id:int}', endpoint=edit_basic_detail, methods=['GET','PUT']),
@@ -74,7 +76,10 @@ routes = [
 
 ]
 
+middleware = [
+    Middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'])
+]
 
-app = Starlette(debug=True, routes=routes)
+app = Starlette(debug=True, routes=routes, middleware=middleware)
 
 
