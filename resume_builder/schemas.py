@@ -6,7 +6,7 @@ from datetime import date, datetime
 import re
 
 class BasicDetailsSchema(BaseModel):
-    name:str
+    name:str 
     email_address: str
     phone_number:  str
     image_url: str
@@ -18,7 +18,7 @@ class BasicDetailsSchema(BaseModel):
     @validator('*', pre=True)
     def val_all(cls, val):
         if val == '':
-            raise ValueError(f"You should enter value for  ")
+            raise ValueError(f"You should enter value for all the fields of Basic Details")
         return val
 
     @validator('name')
@@ -63,6 +63,12 @@ class SkillsSchema(BaseModel):
     class Config:
         orm_mode = True
 
+    @validator('*', pre=True)
+    def val_all(cls, val):
+        if val == '':
+            raise ValueError(f"You should enter value for all the fields of Skills")
+        return val
+
     @validator('rating')
     def is_valid_rating(cls, val):
         if not val:
@@ -88,6 +94,12 @@ class EducationSchema(BaseModel):
     class Config:
         orm_mode = True
 
+    @validator('*', pre=True)
+    def val_all(cls, val):
+        if val == '':
+            raise ValueError(f"You should enter value for all the fields of Education")
+        return val
+
     @root_validator
     def check_dates(cls, values):
         start = datetime.strftime(values.get('start_date'), '%Y-%m-%d')
@@ -106,6 +118,12 @@ class WorkSchema(BaseModel):
 
     class Config:
         orm_mode = True
+    
+    @validator('*', pre=True)
+    def val_all(cls, val):
+        if val == '':
+            raise ValueError(f"You should enter value for all the fields of Work")
+        return val
 
     @root_validator
     def check_dates(cls, values):
@@ -123,6 +141,12 @@ class ProjectSchema(BaseModel):
     class Config:
         orm_mode = True
 
+    @validator('*', pre=True)
+    def val_all(cls, val):
+        if val == '':
+            raise ValueError(f"You should enter value for all the fields of Project")
+        return val
+
 class SocialMediaSchema(BaseModel):
     network: Annotated[str, Field(min_length=2)]
     url: Annotated[str, Field(min_length=2)]
@@ -130,3 +154,9 @@ class SocialMediaSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+    @validator('*', pre=True)
+    def val_all(cls, val):
+        if val == '':
+            raise ValueError(f"You should enter value for all the fields of Social Media")
+        return val

@@ -89,7 +89,7 @@ async def update_resume(request):
         try:
 
             # BasicDetailsSchema.from_orm(**new_details)
-           # BasicDetailsSchema.from_orm(new_details)
+            # BasicDetailsSchema.from_orm(BasicDetails(**new_details))
             validate_resume(SkillsSchema, skill, Skills)
             validate_resume(LocationDetailsSchema, loc, LocationDetails)
             validate_resume(EducationSchema, edu, Education)
