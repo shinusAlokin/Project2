@@ -49,6 +49,7 @@ async def create_resume(request):
         db.add(new_details)
         db.commit()
         db.refresh(new_details)
+        
     except Exception as e:
         print(e)
         db.rollback()
@@ -106,9 +107,8 @@ async def update_resume(request):
             edit_looper_util(project, Projects, fk)
             return JSONResponse({"Success": "Successfully edited"})
         except Exception as e:
-            print(e)
             db.rollback()
-        return JSONResponse({'edit': 'Update failed'})
+            return JSONResponse({'error_message': f'{e}'})
 
     basic = get_basic_util(fk)
     skill = get_helper(Skills, fk)
