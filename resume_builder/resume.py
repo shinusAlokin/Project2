@@ -88,16 +88,13 @@ async def update_resume(request):
         skill = new_details.pop("skills")
         project = new_details.pop("projects")        
         try:
-
-            # BasicDetailsSchema.from_orm(**new_details)
-            # BasicDetailsSchema.from_orm(BasicDetails(**new_details))
             validate_resume(SkillsSchema, skill, Skills)
             validate_resume(LocationDetailsSchema, loc, LocationDetails)
             validate_resume(EducationSchema, edu, Education)
             validate_resume(WorkSchema, work, Work)
             validate_resume(ProjectSchema, project, Projects)
             validate_resume(SocialMediaSchema, social, SocialMedia)            
-            
+
             edit_util(BasicDetails, fk, new_details)
             edit_looper_util(skill,Skills,fk)
             edit_looper_util(loc,LocationDetails, fk)

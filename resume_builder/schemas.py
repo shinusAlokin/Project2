@@ -37,11 +37,11 @@ class BasicDetailsSchema(BaseModel):
 
     # @validator('phone_number')
     # def is_valid_phone_number(cls, val):
-    #     pattern = r"0|1|91?[6-9][0-9]{9}"
+    #     pattern = r"^(?(\d{3}))?[- ]?(\d{3})[- ]?(\d{4})$"
     #     if not re.match(pattern, val):
     #         raise ValueError("Invalid phone number")
     #     else:
-    #         return val.title()
+    #         return val
 
 
 
