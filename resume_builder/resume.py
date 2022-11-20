@@ -3,18 +3,20 @@ from database import SessionLocal
 from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from utils import *
+from sqlalchemy import func
 from basic_details import get_basic_util
 from schemas import BasicDetailsSchema, SkillsSchema, LocationDetailsSchema
 from schemas import EducationSchema, WorkSchema, SocialMediaSchema, ProjectSchema
 
 db = SessionLocal()
 
-
+# validation utility function 
 def validate_resume(schema, data, model):
         for i in data:
             schema.from_orm(model(**i))
 
 
+# 
 async def create_resume(request):
     new_details = await request.json()
     loc = new_details.pop("location_details")
@@ -24,10 +26,6 @@ async def create_resume(request):
     skill = new_details.pop("skills")
     project = new_details.pop("projects")
     
-    # try:
-    #     new_details = BasicDetailsSchema(**new_details)
-    # except Exception as e:
-    #     return e
     new_details = BasicDetails(**new_details, 
                             location_details=create_util(LocationDetails, loc),
                             social_media=create_util(SocialMedia, social),
@@ -49,12 +47,15 @@ async def create_resume(request):
         db.add(new_details)
         db.commit()
         db.refresh(new_details)
+        new_id = new_details.basic_details_id
+        return JSONResponse({'created_id': new_id}, status_code=201)
         
     except Exception as e:
-        print(e)
         db.rollback()
-        return JSONResponse({'error_message': f'{e}'})
-    return JSONResponse({'data': 'new_details'}, status_code=201)
+        try:
+            return JSONResponse({'error_message': e.errors()})
+        except:
+            return JSONResponse({'error_message': 'You should input all the required fields correctly'})
     
 
 async def get_all(request):
@@ -88,6 +89,7 @@ async def update_resume(request):
         skill = new_details.pop("skills")
         project = new_details.pop("projects")        
         try:
+            BasicDetailsSchema.from_orm(BasicDetails(**new_details))
             validate_resume(SkillsSchema, skill, Skills)
             validate_resume(LocationDetailsSchema, loc, LocationDetails)
             validate_resume(EducationSchema, edu, Education)
@@ -105,7 +107,7 @@ async def update_resume(request):
             return JSONResponse({"Success": "Successfully edited"})
         except Exception as e:
             db.rollback()
-            return JSONResponse({'error_message': f'{e}'})
+            return JSONResponse({'error_message': e.errors()})
 
     basic = get_basic_util(fk)
     skill = get_helper(Skills, fk)
@@ -129,8 +131,8 @@ async def search(request):
     search = request.path_params['search']
     
     if search:
-        data = db.query(BasicDetails).filter((BasicDetails.name.contains(search)) | (BasicDetails.email_address==search)).order_by(BasicDetails.date_applied).all()
-        content = [{key: str(value) for key, value in result.__dict__.items() if key in ['name', 'email_address', 
+        data = db.query(BasicDetails).filter((func.lower(BasicDetails.name).contains(search.lower())) | (BasicDetails.email_address==search)).order_by(BasicDetails.date_applied).all()
+        content = [{key: str(value).split(".")[0] if key == 'date_applied' else str(value)  for key, value in result.__dict__.items() if key in ['name', 'email_address', 
                     'phone_number', 'date_applied', 'basic_details_id']} 
                 for result in data]
     return JSONResponse({'search': content})

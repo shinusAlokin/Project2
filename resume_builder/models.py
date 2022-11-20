@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, Date, Float, ForeignKey, Integer, String, text
+from sqlalchemy import TIMESTAMP, Column, Date,  ForeignKey, Integer, String, text
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -7,10 +7,10 @@ class BasicDetails(Base):
 
     basic_details_id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String(100), nullable=False)
-    email_address = Column(String(100), nullable=False, unique=True)
+    email_address = Column(String(100), nullable=False)
     phone_number = Column(String(20), nullable=False)
-    image_url = Column(String(100), nullable=True)
-    summary = Column(String(100), nullable=False)
+    image_url = Column(String(200), nullable=True)
+    summary = Column(String(500), nullable=False)
     date_applied = Column(TIMESTAMP(timezone=True), server_default=text('now()'), nullable=False)
     location_details = relationship('LocationDetails', backref='basic_details', lazy=True)
     social_media = relationship('SocialMedia', backref='basic_details', lazy=True)
@@ -18,6 +18,9 @@ class BasicDetails(Base):
     education_details = relationship('Education', backref='basic_details', lazy=True)
     skills = relationship('Skills', backref='basic_details', lazy=True)
     projects = relationship('Projects', backref='basic_details', lazy=True)
+
+    def __str__(self):
+        return self.email_address
 
 
 class LocationDetails(Base):
@@ -30,7 +33,7 @@ class LocationDetails(Base):
     street_name = Column(String(200), nullable=False)
     city = Column(String(100), nullable=False)
     country = Column(String(100), nullable=False)
-    zip_code = Column(String(50), nullable=False)
+    zip_code = Column(String(20), nullable=False)
     
 
 class SocialMedia(Base):
@@ -40,9 +43,9 @@ class SocialMedia(Base):
     basic_details_id = Column(Integer, 
                 ForeignKey("basic_details.basic_details_id", ondelete="CASCADE"),
                 nullable=False)
-    network = Column(String(100), nullable=False)
-    user_name = Column(String(100), nullable=False)
-    url = Column(String(100), nullable=False)
+    network = Column(String(100), nullable=True)
+    user_name = Column(String(100), nullable=True)
+    url = Column(String(250), nullable=True)
     
 
 class Work(Base):
@@ -51,11 +54,11 @@ class Work(Base):
     basic_details_id = Column(Integer, 
                 ForeignKey("basic_details.basic_details_id", ondelete="CASCADE"),
                 nullable=False)
-    organisation = Column(String(200), nullable=False)
-    job_role = Column(String(100), nullable=False)
-    key_roles = Column(String(300), nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
+    organisation = Column(String(200), nullable=True)
+    job_role = Column(String(100), nullable=True)
+    key_roles = Column(String(500), nullable=True)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
     
 
 class Education(Base):
@@ -79,7 +82,7 @@ class Skills(Base):
                 ForeignKey("basic_details.basic_details_id", ondelete="CASCADE"),
                 nullable=False)
     skill = Column(String(50), nullable=False)
-    rating = Column(String(10), nullable=True)
+    rating = Column(String(30), nullable=False)
 
 class Projects(Base):
     __tablename__ = "projects"
@@ -87,8 +90,8 @@ class Projects(Base):
     basic_details_id = Column(Integer, 
                 ForeignKey("basic_details.basic_details_id", ondelete="CASCADE"),
                 nullable=False)
-    project_title = Column(String(100), nullable=False)
-    skills = Column(String(50), nullable=False)
-    description = Column(String(500), nullable=False)
+    project_title = Column(String(100), nullable=True)
+    skills = Column(String(50), nullable=True)
+    description = Column(String(500), nullable=True)
 
     

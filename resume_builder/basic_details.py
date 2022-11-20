@@ -35,7 +35,7 @@ async def get_basic_details(request):
     results = db.query(BasicDetails).order_by(desc(BasicDetails.date_applied)).all() 
     content = [{key: value for key, value in result.__dict__.items() if key != '_sa_instance_state'} 
                 for result in results]
-    content = [{key: str(value).split(" ")[0] if key=='date_applied' else value for key, value in cont.items()} 
+    content = [{key: str(value).split(".")[0] if key=='date_applied' else value for key, value in cont.items()} 
                 for cont in content]
     return JSONResponse({'content': content}, status_code=200)
 
