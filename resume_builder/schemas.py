@@ -1,44 +1,44 @@
 from pydantic import BaseModel, Field, validator, ValidationError, constr
-#from pydantic import EmailStr
+
+# from pydantic import EmailStr
 from pydantic import schema, root_validator
 from typing import Annotated, Optional, Any
 from datetime import date, datetime
 import re
 
-class BasicDetailsSchema(BaseModel):
-    name:str 
-    email_address: str
-    phone_number:  str
-    summary: str
 
+class BasicDetailsSchema(BaseModel):
+    name: str
+    email_address: str
+    phone_number: str
+    summary: str
 
     class Config:
         orm_mode = True
 
-    @validator('*', pre=True)
+    @validator("*", pre=True)
     def val_all(cls, val):
-        if val == '':
+        if val == "":
             raise ValueError(f"You should enter value for all of the required fields")
         return val
 
-    @validator('name')
+    @validator("name")
     def name_val(cls, val):
         name_regex = r"[A-Za-z]\s?"
         if len(val) < 3:
-            raise ValueError('Name must be atleast 3 characters')
+            raise ValueError("Name must be atleast 3 characters")
         if not re.match(name_regex, val):
-            raise ValueError('Invlid Name')
+            raise ValueError("Invalid Name")
         return val
 
-    @validator('email_address')
+    @validator("email_address")
     def is_valid_email(cls, val):
-        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
         if not re.fullmatch(regex, val):
             raise ValueError("Email is not valid")
         return val
-            
 
-    @validator('phone_number')
+    @validator("phone_number")
     def is_valid_phone_number(cls, val):
         pattern = r"^((\+1|1)?(\d{3}))?[- ]?(\d{3})[- ]?(\d{4})$"
         if not re.match(pattern, val):
@@ -58,18 +58,26 @@ class LocationDetailsSchema(BaseModel):
 
     @root_validator
     def is_valid_zip_code(cls, values):
-        country, zip_code = values.get('country'), values.get('zip_code')
+        country, zip_code = values.get("country"), values.get("zip_code")
         us_pattern = r"^[0-9]{5}(-[0-9]{4})?$"
         indian_pattern = r"^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$"
-        if country == 'India':
-            if not re.match(indian_pattern,zip_code):
+        if country == "India":
+            if not re.match(indian_pattern, zip_code):
                 raise ValueError("Invalid Pin Code for India")
             return values
-        elif country == 'US':
-            if not re.match(us_pattern,zip_code):
+        elif country == "US":
+            if not re.match(us_pattern, zip_code):
                 raise ValueError("Invalid Zip Code for US")
             return values
         return values
+
+    @validator("*", pre=True)
+    def val_all(cls, val):
+        if val == "":
+            raise ValueError(
+                f"You should enter value for all the required fields of Location"
+            )
+        return val
 
 
 class SkillsSchema(BaseModel):
@@ -79,10 +87,12 @@ class SkillsSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator('*', pre=True)
+    @validator("*", pre=True)
     def val_all(cls, val):
-        if val == '':
-            raise ValueError(f"You should enter value for all the required fields of skill")
+        if val == "":
+            raise ValueError(
+                f"You should enter value for all the required fields of skill"
+            )
         return val
 
 
@@ -97,60 +107,57 @@ class EducationSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator('*', pre=True)
+    @validator("*", pre=True)
     def val_all(cls, val):
-        if val == '':
+        if val == "":
             raise ValueError(f"You should enter value for all the fields of Education")
         return val
 
     @root_validator
     def check_dates(cls, values):
-        start = datetime.strftime(values.get('start_date'), '%Y-%m-%d')
-        end =  datetime.strftime(values.get('end_date'), '%Y-%m-%d')
-        if int(end.split('-')[0]) - int(start.split('-')[0]) < 0:
-            raise ValueError('Start date of education should come before end date')
+        start = datetime.strftime(values.get("start_date"), "%Y-%m-%d")
+        end = datetime.strftime(values.get("end_date"), "%Y-%m-%d")
+        if int(end.split("-")[0]) - int(start.split("-")[0]) < 0:
+            raise ValueError("Start date of education should come before end date")
         return values
-        
+
 
 class WorkSchema(BaseModel):
     organisation: Optional[str]
     job_role: Optional[str]
     key_roles: Optional[str]
-    start_date: date
-    end_date: date
+    start_date: Optional[str]
+    end_date: Optional[str]
 
     class Config:
         orm_mode = True
-    
-    # @validator('*', pre=True)
-    # def val_all(cls, val):
-    #     if val == '':
-    #         raise ValueError(f"You should enter value for all the required fields of Work experience")
-    #     return val
 
     @root_validator
     def check_dates(cls, values):
-        start = datetime.strftime(values.get('start_date'), '%Y-%m-%d')
-        end =  datetime.strftime(values.get('end_date'), '%Y-%m-%d')
-        if (int(end.split('-')[0]) - int(start.split('-')[0])) < 0:
-            raise ValueError('Start date of work should come before end date')
+        if  values.get('start_date') and values.get('end_date'):
+            # start = datetime.strftime(values.get("start_date"), "%Y-%m-%d")
+            # end = datetime.strftime(values.get("end_date"), "%Y-%m-%d")
+            start = values.get('start_date')
+            end = values.get('end_date')
+            if (int(end.split("-")[0]) - int(start.split("-")[0])) < 0:
+                raise ValueError("Start date of work should come before end date")
+            return values
         return values
 
 
 class ProjectSchema(BaseModel):
-    project_title: str #Annotated[str, Field(min_length=2)]
-    skills: str #Annotated[str, Field(min_length=2)]
-    description: str #Annotated[str, Field(min_length=10)]
+    project_title: str  
+    skills: str  
+    description: str  
 
     class Config:
         orm_mode = True
 
 
 class SocialMediaSchema(BaseModel):
-    network: str 
-    url: str 
-    user_name: str 
+    network: str
+    url: str
+    user_name: str
 
     class Config:
         orm_mode = True
-
